@@ -40,6 +40,7 @@ fun WhiteNoisePlayer(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var isPlaying by remember { mutableStateOf(false) }
     val mediaPlayer = remember { MediaPlayer.create(context, R.raw.whitenoise) }
+    var sliderPosition by remember { mutableStateOf(1f) }
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -59,6 +60,15 @@ fun WhiteNoisePlayer(modifier: Modifier = Modifier) {
         ) {
             Text(if (isPlaying) "Pause" else "Play")
         }
+
+        Slider( // Volume slider
+            value = sliderPosition,
+            onValueChange = { newPosition ->
+                sliderPosition = newPosition
+                mediaPlayer.setVolume(newPosition, newPosition) // Set volume
+            },
+            modifier = Modifier.padding(16.dp)
+        )
     }
 
     DisposableEffect(Unit) {
