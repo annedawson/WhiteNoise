@@ -41,12 +41,33 @@ fun WhiteNoisePlayer(modifier: Modifier = Modifier) {
     var isPlaying by remember { mutableStateOf(false) }
     val mediaPlayer = remember { MediaPlayer.create(context, R.raw.whitenoise) }
     var sliderPosition by remember { mutableStateOf(1f) }
+    var isLooping by remember { mutableStateOf(true) }
+
+    // Set looping based on the state
+    mediaPlayer.isLooping = isLooping
 
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Row( // Row for the switch
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text("Looping")
+            Spacer(modifier = Modifier.width(8.dp))
+            Switch(
+                checked = isLooping,
+                onCheckedChange = { isChecked ->
+                    isLooping = isChecked
+                    mediaPlayer.isLooping = isChecked // Update looping
+                }
+            )
+        }
+
         Button(
             onClick = {
                 if (isPlaying) {
