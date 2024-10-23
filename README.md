@@ -12,3 +12,4 @@ Screenshot:
 
 
 ![WhiteNoise](https://github.com/user-attachments/assets/e15965c3-af36-4e29-9dfa-25c28f835b86)
+![Screenshot_20241023-102703](https://github.com/user-attachments/assets/3f80d6e6-db28-4ef0-8dcf-42d47ff755db)
