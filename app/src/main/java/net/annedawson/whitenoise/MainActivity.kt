@@ -45,14 +45,15 @@ fun WhiteNoiseApp() {
 fun WhiteNoisePlayer(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var isPlaying by remember { mutableStateOf(false) }
-    val mediaPlayer = remember { MediaPlayer.create(context, R.raw.whitenoise) }
+    var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) }
+    // val mediaPlayer = remember { MediaPlayer.create(context, R.raw.whitenoise) }
     var sliderPosition by remember { mutableStateOf(1f) }
     var isLooping by remember { mutableStateOf(true) }
     var selectedAudioUri by remember { mutableStateOf<Uri?>(null) } // Store URI
 
 
     // Set looping based on the state
-    mediaPlayer.isLooping = isLooping
+    mediaPlayer?.isLooping = isLooping
 
     Column(
         modifier = modifier.fillMaxSize(),
@@ -71,30 +72,47 @@ fun WhiteNoisePlayer(modifier: Modifier = Modifier) {
                 checked = isLooping,
                 onCheckedChange = { isChecked ->
                     isLooping = isChecked
-                    mediaPlayer.isLooping = isChecked // Update looping
+                    mediaPlayer?.isLooping = isChecked // Update looping
                 }
             )
         }
 
+        LaunchedEffect(selectedAudioUri) {
+            if (selectedAudioUri != null) {
+                mediaPlayer?.release() // Release any existing MediaPlayer
+
+                // Create and prepare the MediaPlayer for the selected URI
+                mediaPlayer = MediaPlayer.create(context, selectedAudioUri).apply {
+                    isLooping = isLooping
+                    setVolume(sliderPosition, sliderPosition)
+                    // Prepare the MediaPlayer asynchronously (optional but recommended)
+                    // prepareAsync()
+                }
+            }
+        }
+
         Button(
             onClick = {
-                if (isPlaying) {
-                    mediaPlayer.pause()
-                } else {
-                    mediaPlayer.start()
+                if (mediaPlayer != null) {
+                    if (isPlaying) {
+                        mediaPlayer?.pause()
+                    } else {
+                        mediaPlayer?.start()
+                    }
+                    isPlaying = !isPlaying
                 }
-                isPlaying = !isPlaying
             },
             modifier = Modifier.padding(16.dp)
         ) {
             Text(if (isPlaying) "Pause" else "Play")
         }
 
+
         Slider( // Volume slider
             value = sliderPosition,
             onValueChange = { newPosition ->
                 sliderPosition = newPosition
-                mediaPlayer.setVolume(newPosition, newPosition) // Set volume
+                mediaPlayer?.setVolume(newPosition, newPosition) // Set volume
             },
             modifier = Modifier.padding(16.dp)
         )
@@ -123,7 +141,7 @@ fun WhiteNoisePlayer(modifier: Modifier = Modifier) {
 
     DisposableEffect(Unit) {
         onDispose {
-            mediaPlayer.release()
+            mediaPlayer?.release()
         }
     }
 }
