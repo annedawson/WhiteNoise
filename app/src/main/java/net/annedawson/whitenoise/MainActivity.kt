@@ -3,6 +3,7 @@
 package net.annedawson.whitenoise
 
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,6 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.app.Activity
+import android.content.Intent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +48,8 @@ fun WhiteNoisePlayer(modifier: Modifier = Modifier) {
     val mediaPlayer = remember { MediaPlayer.create(context, R.raw.whitenoise) }
     var sliderPosition by remember { mutableStateOf(1f) }
     var isLooping by remember { mutableStateOf(true) }
+    var selectedAudioUri by remember { mutableStateOf<Uri?>(null) } // Store URI
+
 
     // Set looping based on the state
     mediaPlayer.isLooping = isLooping
@@ -90,6 +98,27 @@ fun WhiteNoisePlayer(modifier: Modifier = Modifier) {
             },
             modifier = Modifier.padding(16.dp)
         )
+
+        
+
+        val launcher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                selectedAudioUri = result.data?.data
+            }
+        }
+
+        Button(onClick = {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                type = "audio/*"
+                addCategory(Intent.CATEGORY_OPENABLE)
+            }
+            launcher.launch(intent) // Launch the intent using the launcher
+        }) {
+            Text("Select Audio")
+        }
+
     }
 
     DisposableEffect(Unit) {
